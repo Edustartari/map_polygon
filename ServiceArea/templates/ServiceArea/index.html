@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Document</title>
+      <link rel="stylesheet" href="{% static 'ServiceArea/style.css' %}">
+      <link rel="stylesheet" href="{% static 'ServiceArea/App.css' %}">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.collapsible/1.2/jquery.collapsible.min.js"></script>
+
+      <link href="https://cdn.maptiler.com/maptiler-sdk-js/v2.2.2/maptiler-sdk.css" rel="stylesheet" />
+      <script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.2.2/maptiler-sdk.umd.js"></script>
+      <script src="https://cdn.maptiler.com/maptiler-geocoding-control/v1.3.3/maptilersdk.umd.js"></script>
+      <link href="https://cdn.maptiler.com/maptiler-geocoding-control/v1.3.3/style.css" rel="stylesheet">
+      <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+      <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.2/mapbox-gl-draw.js'></script>
+      <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.2/mapbox-gl-draw.css' type='text/css' />
+      <style>
+          #map {
+              width: 1000px;
+              height: 500px;
+          }
+      
+          .maplibregl-ctrl-top-right .mapboxgl-ctrl {
+            float: right;
+            margin: 10px 10px 0 0;
+          }
+      
+          .mapboxgl-ctrl {
+              clear: both;
+              pointer-events: auto;
+              transform: translate(0);
+          }
+      
+          .mapboxgl-ctrl-group {
+            width: fit-content;
+          }
+      
+          .mapboxgl-ctrl-group button {
+            background-color: transparent;
+            border: 0;
+            box-sizing: border-box;
+            cursor: pointer;
+            display: block;
+            outline: none;
+            overflow: hidden;
+            padding: 0;
+          }
+        </style>
+  </head>
+  <body>
+
+    <div id="app"></div>
+    
+    <script type="text/javascript">
+      let content = {}
+      content.data_list = {{ data_list | safe }};
+    </script>
+    <script src="{% static 'ServiceArea/main.js' %}"></script>
+  </body>
+</html>
