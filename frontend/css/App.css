@@ -1,0 +1,44 @@
+.App {
+    width: 1000px;
+    padding: 20px;
+}
+.map-wrap {
+    width: 100%;
+    height: 100%; /* calculate height of the screen minus the heading */
+}
+.map {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+.load-header{
+    margin: 0 0 20px 0;
+    display: flex;
+    flex-direction: column;
+}
+.load-heade-title{
+    font-weight: bold;
+    margin: 0 0 5px 0;
+
+}
+.form-inputs{
+    display: flex;
+    flex-direction: column;
+    margin: 0 0 20px 0;
+}
+.form-title{
+    font-weight: bold;
+    margin: 0 0 10px 0;
+}
+.form-inputs-bottom {
+    margin: 20px 0 0 0;
+}
+.form-input-component {
+    margin: 0 10px 10px 0 !important;
+}
+.load-header-button-details {
+    margin: 5px 5px 0 0 !important;
+}
+.load-header-select-component {
+    width: 100%;
+}

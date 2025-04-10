@@ -30,7 +30,7 @@ def index(request):
     context = {
         'data_list': json.dumps(data_list),
     }
-    return render(request, "ServiceArea/index.html", context)
+    return render(request, "index.html", context)
 
 @csrf_exempt
 def save_form(request):

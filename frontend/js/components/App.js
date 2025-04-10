@@ -1,5 +1,5 @@
 import { render } from "react-dom";
-import '../../static/ServiceArea/App.css';
+import '../../css/App.css';
 import Map from './Map.js';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -11,11 +11,11 @@ import Select from '@mui/material/Select';
 
 import React, { Component, useRef, useEffect } from 'react';
 
-let data_list = content.data_list
-
 export default function App() {
 
   const [polygon_area, setPolygonArea] = React.useState({});
+  const [polygonBackup, setPolygonBackup] = React.useState({});
+  const [data_list, setDataList] = React.useState(content.data_list);
   const [state, setState] = React.useState({
     name: '',
     email: '',
@@ -62,7 +62,7 @@ export default function App() {
       area_id: area_id,
       area_name: area_name,
       price: price,
-      polygon_area: polygon_area
+      polygon_area: polygonBackup
     }
     
     $.ajax({
@@ -74,15 +74,17 @@ export default function App() {
       },
       success: function (data) {
         if(data.status === 'success'){
+          let new_list = data_list;
           if(area_id !== ''){
             let data = data_list.filter(element => element.area_id == area_id)[0];
             dict_data['provider_id'] = data['provider_id'];
             let updated_list = data_list.filter(element => element.area_id != area_id);
             updated_list.push(dict_data);
-            data_list = updated_list;
+            new_list = updated_list;
           } else {
-            data_list.push(dict_data);
+            new_list.push(dict_data);
           }
+          setDataList(new_list);
           setState({ ...state, snackbar_open: true , snackbar_message: 'Success' });
           empty_form();
         }
@@ -114,7 +116,10 @@ export default function App() {
       enable_delete: true
     });
 
+    console.log(data['polygon_area']);
+
     setPolygonArea(data['polygon_area']);
+    setPolygonBackup(data['polygon_area']);
   }
 
   const delete_form = () => {
@@ -129,7 +134,7 @@ export default function App() {
       success: function (data) {
         if(area_id !== ''){
           let updated_list = data_list.filter(element => element.area_id != area_id);
-          data_list = updated_list;
+          setDataList(updated_list);
         }
         setState({ ...state, snackbar_open: true , snackbar_message: 'Deleted!' });
         empty_form();
@@ -142,7 +147,7 @@ export default function App() {
 
     if(area_id !== ''){
       let updated_list = data_list.filter(element => element.area_id != area_id);
-      data_list = updated_list;
+      setDataList(updated_list);
     } else {
       setState({ ...state, snackbar_open: true , snackbar_message: 'You must select a data' });
     }
@@ -163,6 +168,7 @@ export default function App() {
     });
 
     setPolygonArea({});
+    setPolygonBackup({});
   }
 
   const handleClose = (event, reason) => {
@@ -184,6 +190,7 @@ export default function App() {
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
+                  className="load-header-select-component"
                   value={area_id}
                   label="Area Saved"
                   onChange={(e) => {setSelectedData(e)}}
@@ -194,11 +201,11 @@ export default function App() {
                 </Select>
               </div>
               <div className="load-header-button">
-                <Button variant="contained" onClick={load_form}>LOAD</Button>
+                <Button className="load-header-button-details" variant="contained" onClick={load_form}>LOAD</Button>
                 {enable_delete &&
                   <React.Fragment>
-                    <Button variant="contained" onClick={delete_form}>DELETE</Button>
-                    <Button variant="contained" onClick={empty_form}>EMPTY</Button>
+                    <Button className="load-header-button-details" variant="contained" onClick={delete_form}>DELETE</Button>
+                    <Button className="load-header-button-details" variant="contained" onClick={empty_form}>EMPTY</Button>
                   </React.Fragment>
                 }
               </div>
@@ -215,6 +222,7 @@ export default function App() {
           <div className="form-inputs">
             <div className="form-inputs-left">
               <TextField
+                className="form-input-component"
                 id="outlined-controlled"
                 label="Provider Name"
                 value={state.name}
@@ -223,6 +231,7 @@ export default function App() {
                 }}
               />
               <TextField
+                className="form-input-component"
                 id="outlined-controlled"
                 label="Email"
                 value={email}
@@ -231,6 +240,7 @@ export default function App() {
                 }}
               />
               <TextField
+                className="form-input-component"
                 id="outlined-controlled"
                 label="Phone"
                 value={phone}
@@ -239,6 +249,7 @@ export default function App() {
                 }}
               />
               <TextField
+                className="form-input-component"
                 id="outlined-controlled"
                 label="Language"
                 value={language}
@@ -247,6 +258,7 @@ export default function App() {
                 }}
               />
               <TextField
+                className="form-input-component"
                 id="outlined-controlled"
                 label="Currency"
                 value={currency}
@@ -255,6 +267,7 @@ export default function App() {
                 }}
               />
               <TextField
+                className="form-input-component"
                 id="outlined-controlled"
                 label="Service Area Name"
                 value={area_name}
@@ -263,6 +276,7 @@ export default function App() {
                 }}
               />
               <TextField
+                className="form-input-component"
                 id="outlined-controlled"
                 label="Price"
                 value={price}
@@ -273,9 +287,9 @@ export default function App() {
             </div>
             <div className="form-inputs-bottom">
               <div>Service Area:</div>
-              {'features' in polygon_area &&
+              {'features' in polygonBackup &&
                 <React.Fragment>
-                  {polygon_area.features[0].geometry.coordinates[0].map((element, index) => (
+                  {polygonBackup.features[0].geometry.coordinates[0].map((element, index) => (
                     <div key={index}>Lng: {element[0]} / Lat: {element[1]}</div>
                   ))}
                 </React.Fragment>
@@ -283,8 +297,8 @@ export default function App() {
             </div>
           </div>
         </div>
-        <Map setPolygonArea={setPolygonArea}/>
-        <Button variant="contained" onClick={save_form}>SAVE</Button>
+        <Map setPolygonArea={setPolygonArea} polygon_area={polygon_area} setPolygonBackup={setPolygonBackup}/>
+        <Button className="load-header-button-details" variant="contained" onClick={save_form}>SAVE</Button>
         <Snackbar
           open={snackbar_open}
           autoHideDuration={2000}
