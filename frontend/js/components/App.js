@@ -4,12 +4,11 @@ import Map from './Map.js';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import countries from '../countries.json';
 
-import React, { Component, useRef, useEffect } from 'react';
+import React from 'react';
 
 export default function App() {
 
@@ -20,21 +19,19 @@ export default function App() {
     name: '',
     email: '',
     phone: '',
-    language: '',
-    currency: '',
     area_id: '',
     area_name: '',
-    price: '',
+    country: '',
     snackbar_open: '',
     snackbar_message: '',
     enable_delete: false
   });
 
-  const { name, email, phone, language, currency, area_id, area_name, price, snackbar_open, snackbar_message, enable_delete } = state;
+  const { name, email, phone, area_id, area_name, country, snackbar_open, snackbar_message, enable_delete } = state;
 
   const validate_fields = () => {
 
-    if (!name || !email || !phone || !language || !currency || !area_name || !price){
+    if (!name || !email || !phone || !area_name || !country){
       return "You must provide all the fields" ;
     }
 
@@ -57,11 +54,9 @@ export default function App() {
       name: name,
       email: email,
       phone: phone,
-      language: language,
-      currency: currency,
       area_id: area_id,
       area_name: area_name,
-      price: price,
+      country: country,
       polygon_area: polygonBackup
     }
     
@@ -82,6 +77,7 @@ export default function App() {
             updated_list.push(dict_data);
             new_list = updated_list;
           } else {
+            dict_data['area_id'] = data['area_id'];
             new_list.push(dict_data);
           }
           setDataList(new_list);
@@ -108,15 +104,11 @@ export default function App() {
       name: data['name'],
       email: data['email'],
       phone: data['phone'],
-      language: data['language'],
-      currency: data['currency'],
       area_id: data['area_id'],
       area_name: data['area_name'],
-      price: data['price'],
+      country: data['country'],
       enable_delete: true
     });
-
-    console.log(data['polygon_area']);
 
     setPolygonArea(data['polygon_area']);
     setPolygonBackup(data['polygon_area']);
@@ -159,11 +151,9 @@ export default function App() {
       name: '',
       email: '',
       phone: '',
-      language: '', 
-      currency: '', 
       area_id: '',
       area_name: '',
-      price: '',
+      country: '',
       enable_delete: false
     });
 
@@ -178,6 +168,17 @@ export default function App() {
   const setSelectedData = (event) => {
     setState({ ...state, area_id: event.target.value });
   }
+
+  const setCountry = (event) => {
+    console.log('event: ', event.target.value)
+    let country = countries.filter(element => element.code == event.target.value)[0];
+    console.log('country: ', country)
+    setState({ ...state, country: country });
+  }
+
+  console.log('')
+  console.log('data_list: ', data_list)
+  console.log('country: ', country)
 
     return (
       <div className="App">
@@ -251,50 +252,44 @@ export default function App() {
               <TextField
                 className="form-input-component"
                 id="outlined-controlled"
-                label="Language"
-                value={language}
-                onChange={(event) => {
-                  setState({ ...state, language: event.target.value });
-                }}
-              />
-              <TextField
-                className="form-input-component"
-                id="outlined-controlled"
-                label="Currency"
-                value={currency}
-                onChange={(event) => {
-                  setState({ ...state, currency: event.target.value });
-                }}
-              />
-              <TextField
-                className="form-input-component"
-                id="outlined-controlled"
                 label="Service Area Name"
                 value={area_name}
                 onChange={(event) => {
                   setState({ ...state, area_name: event.target.value });
                 }}
               />
-              <TextField
-                className="form-input-component"
-                id="outlined-controlled"
-                label="Price"
-                value={price}
-                onChange={(event) => {
-                  setState({ ...state, price: event.target.value });
-                }}
-              />
             </div>
-            <div className="form-inputs-bottom">
-              <div>Service Area:</div>
-              {'features' in polygonBackup &&
-                <React.Fragment>
-                  {polygonBackup.features[0].geometry.coordinates[0].map((element, index) => (
-                    <div key={index}>Lng: {element[0]} / Lat: {element[1]}</div>
-                  ))}
-                </React.Fragment>
-              }
+            <div className="form-input-select-country-container">
+              <div className="form-input-select-country-title">COUNTRY</div>
+              <Select
+                className="countries-select-component"
+                value={country.code}
+                label="Country"
+                onChange={(e) => {setCountry(e)}}
+              >
+                <MenuItem disabled value="">
+                  <em>Country</em>
+                </MenuItem>
+                {countries.map((element) => {
+                  return <MenuItem key={element.code} value={element.code}>{element.name}</MenuItem>
+                })}
+              </Select>
             </div>
+            {'features' in polygonBackup &&
+              <div className="form-inputs-bottom">
+                <div className="form-inputs-bottom-box">
+                  <div>Coordinates:</div>
+                    <React.Fragment>
+                      {polygonBackup.features[0].geometry.coordinates[0].map((element, index) => (
+                        <div key={index}>Lng: {element[0]} / Lat: {element[1]}</div>
+                      ))}
+                    </React.Fragment>
+                </div>
+                <div className="form-inputs-bottom-box">
+                  <div className="form-inputs-bottom-country-info">info</div>
+                </div>
+              </div>
+            }
           </div>
         </div>
         <Map setPolygonArea={setPolygonArea} polygon_area={polygon_area} setPolygonBackup={setPolygonBackup}/>

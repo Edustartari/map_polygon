@@ -32,13 +32,37 @@
 }
 .form-inputs-bottom {
     margin: 20px 0 0 0;
+    display: flex;
+}
+.form-inputs-bottom-box {
+    width: 50%;
+}
+.form-inputs-bottom-box-card {
+
+}
+.form-inputs-bottom-country-info {
+
 }
 .form-input-component {
     margin: 0 10px 10px 0 !important;
+    width: calc(100% / 4 - (30px / 4));
+}
+.form-input-component:nth-last-child(1) {
+    margin-right: 0 !important;
 }
 .load-header-button-details {
     margin: 5px 5px 0 0 !important;
 }
 .load-header-select-component {
     width: 100%;
+}
+.countries-select-component {
+    width: 100%;    
+}
+.form-input-select-country-container {
+    margin: 5px 0 0 0;
+}
+.form-input-select-country-title {
+    margin: 0 0 5px 0;
+    font-weight: bold;
 }

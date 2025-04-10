@@ -3,7 +3,6 @@ import * as maptilersdk from '@maptiler/sdk';
 import DrawRectangle from './DrawRectangle.js';
 
 export default function Map(props) {
-	console.log("props", props);
 	let current_value = { lng: -74.0060, lat: 40.7128 };
 	// Get coordinates of the polygon
 	if (props.polygon_area && Object.keys(props.polygon_area).length > 0) {

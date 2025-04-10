@@ -19,11 +19,8 @@ def index(request):
             'name': provider.name,
             'email': provider.email,
             'phone': provider.phone,
-            'language': provider.language,
-            'currency': provider.currency,
             'area_id': area.id,
             'area_name': area.name,
-            'price': area.price,
             'polygon_area': json.loads(area.geojson)
         })
 
@@ -44,15 +41,11 @@ def save_form(request):
         provider_object.name = dict_data['name']
         provider_object.email = dict_data['email']
         provider_object.phone = dict_data['phone']
-        provider_object.language = dict_data['language']
-        provider_object.currency = dict_data['currency']
     else:
         provider_object = Provider(
             name=dict_data['name'],
             email=dict_data['email'],
             phone=dict_data['phone'],
-            language=dict_data['language'],
-            currency=dict_data['currency'],
         )
     provider_object.save()
 
@@ -61,7 +54,6 @@ def save_form(request):
         if area_object.count() > 0:
             area_object = area_object[0]
             area_object.name = dict_data['area_name']
-            area_object.price = dict_data['price']
             area_object.geojson = json.dumps(dict_data['polygon_area'])
             area_object.save()
 
@@ -69,13 +61,13 @@ def save_form(request):
         area_object = Area(
             provider_id=provider_object.id,
             name=dict_data['area_name'],
-            price=dict_data['price'],
             geojson=json.dumps(dict_data['polygon_area']),
         )
     area_object.save()
 
     response = {
         'status': 'success',
+        'area_id': area_object.id,
     }
     return JsonResponse(response)
 
