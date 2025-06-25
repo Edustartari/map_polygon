@@ -85,7 +85,7 @@ STORAGES = {
     },
 }
 
-WSGI_APPLICATION = 'mozio.wsgi.application'
+WSGI_APPLICATION = 'mozio.wsgi.app'
 
 
 # Database
