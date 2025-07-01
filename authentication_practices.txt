@@ -1,0 +1,18 @@
+
+Best Practices for authentication/authorisation:
+- Always use TLS. (already exists in many hosting services)
+- Use OAuth2 for single sign on (SSO) with OpenID Connect
+    - Store tokens in secure cookies. That will protect against cross-site scripting (XSS) attacks. However, cookies can be vulnerable to cross-site request forgery (CSRF), so you should make sure your cookies use SameSite=Strict.
+    - If your API handles sensitive data, you may want to use a stronger authentication method such as OAuth 2.0 or mutual SSL.
+- Use API keys to give existing users programmatic access.
+- Encourage using good secrets management for API keys
+- Build validation with middleware to check if the user is authenticated and authorised to access the API endpoints.
+- Use good libraries
+
+Authentication Types:
+- (TASK) Username and password authentication: This is the most common form, where users provide a username and password to access server resources.
+    - Test using basic authentication with base64-encode for the `username:password` content
+- Two-factor/Multi-factor authentication (2FA/MFA): Users must provide more than one verification method before being granted access.
+- Biometric authentication: This utilizes users' physical uniqueness, such as fingerprints, facial recognition, or voice recognition.
+- (TASK) Single Sign-On (SSO): Users authenticate once with a central service and access multiple applications without separate logins (e.g., Google authentication). 
+- (TASK) Token-based authentication: This uses unique tokens (e.g., API keys, JWTs) for verification instead of usernames and passwords.

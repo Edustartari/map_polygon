@@ -7,8 +7,11 @@ import Snackbar from '@mui/material/Snackbar';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import countries from '../countries.json';
-
 import React from 'react';
+
+// Create a modal to force user to provide credentials
+// This modal will have mock data to simulate a REST API authentication flow
+// Present an option to user skip authentication
 
 export default function App() {
 
