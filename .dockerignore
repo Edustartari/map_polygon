@@ -1,0 +1,8 @@
+node_modules/
+dist/
+webpack-stats.json
+ServiceArea/__pycache__/
+bundles/
+env/
+.vercel
+__pycache__
