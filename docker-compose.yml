@@ -1,0 +1,22 @@
+services:
+  web:
+    build: .
+    container_name: map_polygon_web
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=True
+      - DJANGO_SETTINGS_MODULE=mozio.settings
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+    restart: unless-stopped
+
+volumes:
+  db_data:
+
+# Construir e iniciar o container:
+# docker-compose up
+
+# Parar o container:
+# docker-compose down
