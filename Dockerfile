@@ -68,16 +68,16 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 # Command to run the application
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "mozio.wsgi:application"]
 
-# Construir a imagem
+# Build image
 # docker build -t map-polygon-app .
 
-# Executar o container
+# Execute container
 # docker run -p 8000:8000 map-polygon-app
 
-# Criar o container
+# Create container
 # docker run -i -t -d --name map-app --publish 8000:8000 -v $PWD:/root/map_polygon map-polygon-app
 
-# Abrir linha de comando do container
+# Open command line for container
 # docker exec -i -t map-app /bin/bash
 
 # Command to delete container
