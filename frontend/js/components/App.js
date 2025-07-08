@@ -217,7 +217,7 @@ export default function App() {
           }
           {data_list.length === 0 &&
             <div className="load-header">
-              <div className="load-heade-title">EMPTY DATA 2</div>
+              <div className="load-heade-title">EMPTY DATA</div>
               <div className="load-heade-subtitle">You don't have any data saved yet at our database. Go ahead and fill the form below</div>
             </div>
           }
