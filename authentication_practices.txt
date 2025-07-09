@@ -8,10 +8,14 @@ Best Practices for authentication/authorisation:
 - Encourage using good secrets management for API keys
 - Build validation with middleware to check if the user is authenticated and authorised to access the API endpoints.
 - Use good libraries
+- Session length: When setting up token expiration for an API, it's important to strike a balance between security and user experience. Setting too short an expiration may result in forcing clients to reauthenticate too frequently, while setting it too long may cause a security risk. Consider the sensitivity of the data and operations provided by your API when determining token expiration.
+- Basic: 'Authorization': f'Basic {encoded}'
+- Api-Key: 'Authorization': f'api-key {api_key}'
+- Token: 'Authorization': f'Bearer {token}'
 
 Authentication Types:
 - (TASK) Username and password authentication: This is the most common form, where users provide a username and password to access server resources.
-    - Test using basic authentication with base64-encode for the `username:password` content
+    - Test using basic authentication with base64-encode for the `username:password` content. 
 - Two-factor/Multi-factor authentication (2FA/MFA): Users must provide more than one verification method before being granted access.
 - Biometric authentication: This utilizes users' physical uniqueness, such as fingerprints, facial recognition, or voice recognition.
 - (TASK) Single Sign-On (SSO): Users authenticate once with a central service and access multiple applications without separate logins (e.g., Google authentication). 
