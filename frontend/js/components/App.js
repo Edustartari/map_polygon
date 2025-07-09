@@ -6,12 +6,47 @@ import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import Avatar from '@mui/material/Avatar';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Dialog from '@mui/material/Dialog';
+
 import countries from '../countries.json';
 import React from 'react';
 
 // Create a modal to force user to provide credentials
 // This modal will have mock data to simulate a REST API authentication flow
 // Present an option to user skip authentication
+
+const SimpleDialog = (props) => {
+  const { setOpenLogin, open } = props;
+  console.log('props: ', props);
+
+  return (
+    <Dialog onClose={() => setOpenLogin(false)} open={open}>
+      <DialogTitle>Login</DialogTitle>
+      <List sx={{ pt: 0, width: 400 }}>
+        <ListItem disablePadding>
+          <ListItemButton
+            autoFocus
+            onClick={() => console.log('addAccount')}
+          >
+            <ListItemAvatar>
+              <Avatar>
+                +
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText primary="Add account" />
+          </ListItemButton>
+        </ListItem>
+      </List>
+    </Dialog>
+  );
+}
 
 export default function App() {
 
@@ -29,6 +64,7 @@ export default function App() {
     snackbar_message: '',
     enable_delete: false
   });
+  const [openLogin, setOpenLogin] = React.useState(true);
 
   const { name, email, phone, area_id, area_name, country, snackbar_open, snackbar_message, enable_delete } = state;
 
@@ -302,6 +338,10 @@ export default function App() {
           autoHideDuration={2000}
           onClose={handleClose}
           message={snackbar_message}
+        />
+        <SimpleDialog
+          open={openLogin}
+          setOpenLogin={setOpenLogin}
         />
       </div>
     );
