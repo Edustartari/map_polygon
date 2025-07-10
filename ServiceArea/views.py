@@ -5,9 +5,24 @@ from ServiceArea.models import *
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+import hashlib
+import os
+import requests
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
+from mozio.settings import CLIENT_ID
 
 # Create your views here.
 def index(request):
+    state_token = request.session.get('state', None)
+    if state_token is None:
+        # Generate a new state token and store it in the session
+        state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
+        print('state_token', state_token)
+        request.session['state'] = state_token
+    else:
+        print('Using existing state_token:', state_token)
+
     data_list = []
     providers_objects = Provider.objects.all()
     providers_dict = {provider.id:provider for provider in providers_objects}
@@ -78,6 +93,63 @@ def delete_form(request):
     area_id = json.loads(area_id)
 
     area_object = Area.objects.get(id=area_id).delete()
+    
+    response = {
+        'status': 'success',
+    }
+    return JsonResponse(response)
+
+@csrf_exempt
+def google_login(request):
+    print('')
+    print('google_login')
+
+    # https://accounts.google.com/o/oauth2/v2/auth
+    # https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&prompt=consent&response_type=code&client_id=407408718192.apps.googleusercontent.com&scope=email&access_type=offline
+    # Test later scope=email,openid
+    # https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000&prompt=consent&response_type=code&client_id=CLIENT_ID&scope=email&access_type=offline&nonce=nonce
+
+    nonce = request.GET.get('nonce', None)
+    if nonce is None:
+        nonce = hashlib.sha256(os.urandom(1024)).hexdigest()
+        request.session['nonce'] = nonce
+
+    state_token = request.session.get('state', None)
+    if state_token is None:
+        state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
+        request.session['state'] = state_token
+
+    user_email = request.session.get('user_email', None)
+    login_hint = ''
+    if user_email:
+        login_hint = '&login_hint=' + user_email
+    # https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http%3A%2F%2F127.0.0.1%3A8000&prompt=consent&response_type=code&client_id=CLIENT_ID&scope=openid%20email&access_type=offline&nonce=nonce&state=state_token + login_hint
+    # url = f"https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http%3A%2F%2F127.0.0.1%3A8000%2Fredirect-login&prompt=consent&response_type=code&client_id={CLIENT_ID}&scope=openid%20email&access_type=offline&nonce={nonce}&state={state_token}"
+    url = f"https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https%3A%2F%2Fmap-polygon.vercel.app%2Fredirect-login&prompt=consent&response_type=code&client_id={CLIENT_ID}&scope=openid%20email&access_type=offline&nonce={nonce}&state={state_token}"
+    response = requests.get(url)
+    print(response)
+    print('********************************************************')
+    print('********************************************************')
+    print('********************************************************')
+    print('********************************************************')
+    print('********************************************************')
+    # print(response.content)
+    # Get response
+    # results_json = json.loads(response.content)
+    # print(results_json)
+    redirect_url = response.url
+    print('redirect_url: ', redirect_url)
+
+    response = {
+        'status': 'success',
+        'redirect_url': redirect_url,
+    }
+    return JsonResponse(response)
+
+@csrf_exempt
+def redirect_login(request):
+    print('')
+    print('redirect_login')
     
     response = {
         'status': 'success',

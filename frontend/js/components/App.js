@@ -16,34 +16,40 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 
 import countries from '../countries.json';
-import React from 'react';
+import React, { useState } from 'react';
 
 // Create a modal to force user to provide credentials
 // This modal will have mock data to simulate a REST API authentication flow
 // Present an option to user skip authentication
 
-const SimpleDialog = (props) => {
+const LoginDialog = (props) => {
   const { setOpenLogin, open } = props;
   console.log('props: ', props);
+
+  const handleLogin = async () => {
+    let response = await fetch('/google-login/')
+    console.log('response: ', response);
+    
+    response = await response.json();
+    let redirect_url = response.redirect_url;
+    console.log('redirect_url: ', redirect_url);
+    if (redirect_url) {
+      // Redirect the user to the Google login page
+      window.location.href = redirect_url;
+    }
+    // If the response is successful, close the dialog
+    setOpenLogin(false);
+  }
 
   return (
     <Dialog onClose={() => setOpenLogin(false)} open={open}>
       <DialogTitle>Login</DialogTitle>
-      <List sx={{ pt: 0, width: 400 }}>
-        <ListItem disablePadding>
-          <ListItemButton
-            autoFocus
-            onClick={() => console.log('addAccount')}
-          >
-            <ListItemAvatar>
-              <Avatar>
-                +
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText primary="Add account" />
-          </ListItemButton>
-        </ListItem>
-      </List>
+      <div className="login-dialog-container">
+        <div className="login-dialog-box" onClick={handleLogin}>Button</div>
+        <div className="login-dialog-footer">
+          <div className="login-dialog-footer-button" onClick={() => setOpenLogin(false)}>Skip</div>
+        </div>
+      </div>
     </Dialog>
   );
 }
@@ -339,7 +345,7 @@ export default function App() {
           onClose={handleClose}
           message={snackbar_message}
         />
-        <SimpleDialog
+        <LoginDialog
           open={openLogin}
           setOpenLogin={setOpenLogin}
         />
