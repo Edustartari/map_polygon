@@ -66,3 +66,22 @@
     margin: 0 0 5px 0;
     font-weight: bold;
 }
+.login-dialog-container{
+    padding: 12px;
+    width: 300px;
+}
+.login-dialog-box{
+
+}
+.login-dialog-footer{
+    margin: 12px 0 0 0;
+    display: flex;
+    justify-content: flex-end;
+}
+.login-dialog-footer-button {
+    padding: 6px 12px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}

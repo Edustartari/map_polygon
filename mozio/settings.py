@@ -142,3 +142,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000'
 ]
+
+CLIENT_ID = '543552371055-t3eh5kssf7q9uj0f5rmre0f6gihcih45.apps.googleusercontent.com'
+CLIENT_SECRET = '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'
