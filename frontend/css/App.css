@@ -85,3 +85,22 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+.welcome-dialog-container{
+    padding: 12px;
+    width: 300px;
+}
+.welcome-dialog-box{
+
+}
+.welcome-dialog-footer{
+    margin: 12px 0 0 0;
+    display: flex;
+    justify-content: flex-end;
+}
+.welcome-dialog-footer-button{
+    padding: 6px 12px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}

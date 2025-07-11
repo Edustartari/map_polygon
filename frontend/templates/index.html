@@ -55,6 +55,7 @@
     <script type="text/javascript">
       let content = {}
       content.data_list = {{ data_list | safe }};
+      content.user_info = {{ user_info | safe }};
     </script>
     <script src="{% static 'index_bundle.js' %}"></script>
   </body>

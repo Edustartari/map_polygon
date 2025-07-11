@@ -14,6 +14,8 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import countries from '../countries.json';
 import React, { useState } from 'react';
@@ -23,7 +25,7 @@ import React, { useState } from 'react';
 // Present an option to user skip authentication
 
 const LoginDialog = (props) => {
-  const { setOpenLogin, open } = props;
+  const { setOpenLogin, open, setLoading } = props;
   console.log('props: ', props);
 
   const handleLogin = async () => {
@@ -45,9 +47,41 @@ const LoginDialog = (props) => {
     <Dialog onClose={() => setOpenLogin(false)} open={open}>
       <DialogTitle>Login</DialogTitle>
       <div className="login-dialog-container">
-        <div className="login-dialog-box" onClick={handleLogin}>Button</div>
+        <div className="login-dialog-box" onClick={() => {setLoading(true), handleLogin()}}>Button</div>
         <div className="login-dialog-footer">
           <div className="login-dialog-footer-button" onClick={() => setOpenLogin(false)}>Skip</div>
+        </div>
+      </div>
+    </Dialog>
+  );
+}
+
+const WelcomeDialog = (props) => {
+  const { setOpenWelcomeDialog, open, setLoading } = props;
+  console.log('props: ', props);
+
+  const handleLogout = async () => {
+    // let response = await fetch('/google-login/')
+    // console.log('response: ', response);
+    
+    // response = await response.json();
+    // let redirect_url = response.redirect_url;
+    // console.log('redirect_url: ', redirect_url);
+    // if (redirect_url) {
+    //   // Redirect the user to the Google login page
+    //   window.location.href = redirect_url;
+    // }
+    // If the response is successful, close the dialog
+    setOpenWelcomeDialog(false);
+  }
+
+  return (
+    <Dialog onClose={() => setOpenWelcomeDialog(false)} open={open}>
+      <DialogTitle>Welcome {content.user_info.given_name}!</DialogTitle>
+      <div className="welcome-dialog-container">
+        <div className="welcome-dialog-box" onClick={() => {setLoading(true), handleLogout()}}>Logout</div>
+        <div className="welcome-dialog-footer">
+          <div className="welcome-dialog-footer-button" onClick={() => setOpenWelcomeDialog(false)}>Close</div>
         </div>
       </div>
     </Dialog>
@@ -70,7 +104,9 @@ export default function App() {
     snackbar_message: '',
     enable_delete: false
   });
-  const [openLogin, setOpenLogin] = React.useState(true);
+  const [openLogin, setOpenLogin] = React.useState(Object.keys(content.user_info).length === 0);
+  const [openWelcomeDialog, setOpenWelcomeDialog] = React.useState(Object.keys(content.user_info).length > 0);
+  const [loading, setLoading] = React.useState(false);
 
   const { name, email, phone, area_id, area_name, country, snackbar_open, snackbar_message, enable_delete } = state;
 
@@ -348,7 +384,19 @@ export default function App() {
         <LoginDialog
           open={openLogin}
           setOpenLogin={setOpenLogin}
+          setLoading={setLoading}
         />
+        <WelcomeDialog
+          open={openWelcomeDialog}
+          setOpenWelcomeDialog={setOpenWelcomeDialog}
+          setLoading={setLoading}
+        />
+        <Backdrop
+          sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+          open={loading}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
       </div>
     );
   }
