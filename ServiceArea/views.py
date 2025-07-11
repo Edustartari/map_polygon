@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from ServiceArea.models import *
 from django.http import JsonResponse
@@ -8,20 +8,27 @@ import json
 import hashlib
 import os
 import requests
-from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from mozio.settings import CLIENT_ID
+from mozio.settings import CLIENT_ID, CLIENT_SECRET
 
 # Create your views here.
 def index(request):
-    state_token = request.session.get('state', None)
-    if state_token is None:
-        # Generate a new state token and store it in the session
-        state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
-        print('state_token', state_token)
-        request.session['state'] = state_token
+    # state_token = request.session.get('state', None)
+    # if state_token is None:
+    #     # Generate a new state token and store it in the session
+    #     state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
+    #     print('state_token', state_token)
+    #     request.session['state'] = state_token
+    # else:
+    #     print('Using existing state_token:', state_token)
+
+    # Get user_info from request
+    user_info = request.GET.get('user_info', None)
+    print('user_info: ', user_info)
+    if user_info is not None:
+        user_info = json.loads(user_info)
     else:
-        print('Using existing state_token:', state_token)
+        user_info = {}
 
     data_list = []
     providers_objects = Provider.objects.all()
@@ -41,6 +48,7 @@ def index(request):
 
     context = {
         'data_list': json.dumps(data_list),
+        'user_info': json.dumps(user_info),
     }
     return render(request, "index.html", context)
 
@@ -104,54 +112,104 @@ def google_login(request):
     print('')
     print('google_login')
 
-    # https://accounts.google.com/o/oauth2/v2/auth
-    # https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&prompt=consent&response_type=code&client_id=407408718192.apps.googleusercontent.com&scope=email&access_type=offline
-    # Test later scope=email,openid
-    # https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://127.0.0.1:8000&prompt=consent&response_type=code&client_id=CLIENT_ID&scope=email&access_type=offline&nonce=nonce
+    # nonce = request.GET.get('nonce', None)
+    # if nonce is None:
+    #     nonce = hashlib.sha256(os.urandom(1024)).hexdigest()
+    #     request.session['nonce'] = nonce
 
-    nonce = request.GET.get('nonce', None)
-    if nonce is None:
-        nonce = hashlib.sha256(os.urandom(1024)).hexdigest()
-        request.session['nonce'] = nonce
+    # state_token = request.session.get('state_token', None)
+    # if state_token is None:
+    #     state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
+    #     request.session['state'] = state_token
 
-    state_token = request.session.get('state', None)
-    if state_token is None:
-        state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
-        request.session['state'] = state_token
+    nonce = hashlib.sha256(os.urandom(1024)).hexdigest()
+    state_token = '43c5730332895d5b2099df2463a9abd8b60d2101c398ff9e89584bb5502108d4'
+    print('state_token: ', state_token)
 
-    user_email = request.session.get('user_email', None)
+    # user_email = request.session.get('user_email', None)
+    user_email = None
     login_hint = ''
     if user_email:
         login_hint = '&login_hint=' + user_email
-    # https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http%3A%2F%2F127.0.0.1%3A8000&prompt=consent&response_type=code&client_id=CLIENT_ID&scope=openid%20email&access_type=offline&nonce=nonce&state=state_token + login_hint
-    # url = f"https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http%3A%2F%2F127.0.0.1%3A8000%2Fredirect-login&prompt=consent&response_type=code&client_id={CLIENT_ID}&scope=openid%20email&access_type=offline&nonce={nonce}&state={state_token}"
-    url = f"https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https%3A%2F%2Fmap-polygon.vercel.app%2Fredirect-login&prompt=consent&response_type=code&client_id={CLIENT_ID}&scope=openid%20email&access_type=offline&nonce={nonce}&state={state_token}"
-    response = requests.get(url)
-    print(response)
-    print('********************************************************')
-    print('********************************************************')
-    print('********************************************************')
-    print('********************************************************')
-    print('********************************************************')
-    # print(response.content)
-    # Get response
-    # results_json = json.loads(response.content)
-    # print(results_json)
-    redirect_url = response.url
-    print('redirect_url: ', redirect_url)
+    redirect_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={CLIENT_ID}&scope=openid%20profile%20email&redirect_uri=https://map-polygon.vercel.app/redirect-login/&state={state_token}&nonce={nonce}&access_type=offline" + login_hint
 
-    response = {
+    print(redirect_url)
+
+    response_dict = {
         'status': 'success',
         'redirect_url': redirect_url,
     }
-    return JsonResponse(response)
+    return JsonResponse(response_dict)
 
 @csrf_exempt
 def redirect_login(request):
     print('')
     print('redirect_login')
-    
-    response = {
-        'status': 'success',
-    }
-    return JsonResponse(response)
+
+    code = request.GET.get('code', None)
+    print('code: ', code)
+    if code is None:
+        return HttpResponse("No code provided in the request.")
+
+    state = request.GET.get('state', None)
+    print('state: ', state)
+    if state is None:
+        return HttpResponse("No state token found in session.")
+
+    # state_token = request.session.get('state_token', None)
+    # print('state_token: ', state_token)
+    # if state_token is None:
+    #     return HttpResponse("No state_token provided in the request.")
+
+    # # Compare the state token with the one in the request
+    # if state != state_token:
+    #     return HttpResponse("State token does not match.")
+
+    response = requests.post(
+        'https://oauth2.googleapis.com/token',
+        data={
+            'code': code,
+            'client_id': CLIENT_ID,
+            'client_secret': CLIENT_SECRET,
+            'redirect_uri': 'https://map-polygon.vercel.app/redirect-login/',
+            'grant_type': 'authorization_code',
+        }
+    )
+    print('response: ', response)
+    if response.status_code != 200:
+        return HttpResponse("Failed to exchange code for access token.")
+    response_data = response.json()
+    print('response_data: ', response_data)
+
+    access_token = response_data.get('access_token', None)
+    print('access_token: ', access_token)
+    if access_token is None:
+        return HttpResponse("No access token found in response.")
+
+    expires_in = response_data.get('expires_in', None)
+    id_token = response_data.get('id_token', None)
+    scope = response_data.get('scope', None)
+    token_type = response_data.get('token_type', None)
+    refresh_token = response_data.get('refresh_token', None)
+
+    print('id_token: ', id_token)
+    # Decode the ID token to get user information
+    user_info_response = requests.get(
+        'https://openidconnect.googleapis.com/v1/userinfo',
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+    )
+    print('user_info_response: ', user_info_response)
+    user_info = {}
+    if user_info_response.status_code == 200:
+        user_info_dict = user_info_response.json()
+        user_info['email'] = user_info_dict.get('email', None)
+        user_info['picture'] = user_info_dict.get('picture', None)
+        user_info['name'] = user_info_dict.get('name', None)
+        user_info['given_name'] = user_info_dict.get('given_name', None)
+        user_info['family_name'] = user_info_dict.get('family_name', None)
+
+    # Redirect to the index page with user_info
+    redirect_url = f"https://map-polygon.vercel.app/?user_info={json.dumps(user_info)}"
+    return redirect(redirect_url)
