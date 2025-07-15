@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv('.env.development.local')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,8 +28,7 @@ SECRET_KEY = 'django-insecure-8kjozs=@5u8mc1ms*fofd)=l+t-&q6f#&zs4cssv0i6dx77(e3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.vercel.app']
-
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.vercel.app', '76565d5a1aef.ngrok-free.app']
 
 # Application definition
 
@@ -143,5 +144,7 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000'
 ]
 
-CLIENT_ID = '543552371055-t3eh5kssf7q9uj0f5rmre0f6gihcih45.apps.googleusercontent.com'
-CLIENT_SECRET = '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'
+REDIS_URL = os.getenv('REDIS_URL')
+VERCEL_OIDC_TOKEN = os.getenv('VERCEL_OIDC_TOKEN')
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')

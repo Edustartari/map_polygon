@@ -9,18 +9,23 @@ import hashlib
 import os
 import requests
 from django.shortcuts import redirect
-from mozio.settings import CLIENT_ID, CLIENT_SECRET
+import redis
+import os
+from dotenv import load_dotenv
+from mozio.settings import *
+
+redis_client = redis.Redis.from_url(REDIS_URL)
 
 # Create your views here.
 def index(request):
-    # state_token = request.session.get('state', None)
-    # if state_token is None:
-    #     # Generate a new state token and store it in the session
-    #     state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
-    #     print('state_token', state_token)
-    #     request.session['state'] = state_token
-    # else:
-    #     print('Using existing state_token:', state_token)
+    state_token = request.session.get('state', None)
+    if state_token is None:
+        # Generate a new state token and store it in the session
+        state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
+        print('state_token', state_token)
+        success = redis_client.set("state_token", state_token)
+    else:
+        print('Using existing state_token:', state_token)
 
     # Get user_info from request
     user_info = request.GET.get('user_info', None)
@@ -112,26 +117,22 @@ def google_login(request):
     print('')
     print('google_login')
 
-    # nonce = request.GET.get('nonce', None)
-    # if nonce is None:
-    #     nonce = hashlib.sha256(os.urandom(1024)).hexdigest()
-    #     request.session['nonce'] = nonce
+    nonce = redis_client.get("nonce")
+    if nonce is None:
+        nonce = hashlib.sha256(os.urandom(1024)).hexdigest()
+        redis_client.set("nonce", nonce)
 
-    # state_token = request.session.get('state_token', None)
-    # if state_token is None:
-    #     state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
-    #     request.session['state'] = state_token
+    state_token = redis_client.get("state_token")
+    if state_token is None:
+        state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
+        redis_client.set("state_token", state_token)
 
-    nonce = hashlib.sha256(os.urandom(1024)).hexdigest()
-    state_token = '43c5730332895d5b2099df2463a9abd8b60d2101c398ff9e89584bb5502108d4'
-    print('state_token: ', state_token)
-
-    # user_email = request.session.get('user_email', None)
-    user_email = None
+    user_email = redis_client.get("user_email")
     login_hint = ''
     if user_email:
         login_hint = '&login_hint=' + user_email
-    redirect_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={CLIENT_ID}&scope=openid%20profile%20email&redirect_uri=https://map-polygon.vercel.app/redirect-login/&state={state_token}&nonce={nonce}&access_type=offline" + login_hint
+    # redirect_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&scope=openid%20profile%20email&redirect_uri=https://76565d5a1aef.ngrok-free.app/redirect-login/&state={state_token}&nonce={nonce}&access_type=offline" + login_hint
+    redirect_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&scope=openid%20profile%20email&redirect_uri=https://map-polygon.vercel.app/redirect-login/&state={state_token}&nonce={nonce}&access_type=offline" + login_hint
 
     print(redirect_url)
 
@@ -156,21 +157,22 @@ def redirect_login(request):
     if state is None:
         return HttpResponse("No state token found in session.")
 
-    # state_token = request.session.get('state_token', None)
-    # print('state_token: ', state_token)
-    # if state_token is None:
-    #     return HttpResponse("No state_token provided in the request.")
+    state_token = redis_client.get("state_token")
+    print('state_token: ', state_token)
+    if state_token is None:
+        return HttpResponse("No state_token provided in the request.")
 
-    # # Compare the state token with the one in the request
-    # if state != state_token:
-    #     return HttpResponse("State token does not match.")
+    # Compare the state token with the one in the request
+    if state != state_token:
+        return HttpResponse("State token does not match.")
 
     response = requests.post(
         'https://oauth2.googleapis.com/token',
         data={
             'code': code,
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET,
+            'client_id': GOOGLE_CLIENT_ID,
+            'client_secret': GOOGLE_CLIENT_SECRET,
+            # 'redirect_uri': 'https://76565d5a1aef.ngrok-free.app/redirect-login/',
             'redirect_uri': 'https://map-polygon.vercel.app/redirect-login/',
             'grant_type': 'authorization_code',
         }
@@ -211,5 +213,6 @@ def redirect_login(request):
         user_info['family_name'] = user_info_dict.get('family_name', None)
 
     # Redirect to the index page with user_info
+    # redirect_url = f"https://76565d5a1aef.ngrok-free.app/?user_info={json.dumps(user_info)}"
     redirect_url = f"https://map-polygon.vercel.app/?user_info={json.dumps(user_info)}"
     return redirect(redirect_url)
