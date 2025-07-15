@@ -23,7 +23,8 @@ def index(request):
         # Generate a new state token and store it in the session
         state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
         print('state_token', state_token)
-        success = redis_client.set("state_token", state_token)
+        # Set key to expire in one day
+        success = redis_client.set("state_token", state_token, ex=86400)
     else:
         print('Using existing state_token:', state_token)
 
@@ -120,12 +121,12 @@ def google_login(request):
     nonce = redis_client.get("nonce")
     if nonce is None:
         nonce = hashlib.sha256(os.urandom(1024)).hexdigest()
-        redis_client.set("nonce", nonce)
+        redis_client.set("nonce", nonce, ex=86400)
 
     state_token = redis_client.get("state_token")
     if state_token is None:
         state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
-        redis_client.set("state_token", state_token)
+        redis_client.set("state_token", state_token, ex=86400)
 
     user_email = redis_client.get("user_email")
     login_hint = ''
