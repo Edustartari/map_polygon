@@ -19,6 +19,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import countries from '../countries.json';
 import React, { useState } from 'react';
+import googleLoginImg from '../../assets/google_login.png';
 
 // Create a modal to force user to provide credentials
 // This modal will have mock data to simulate a REST API authentication flow
@@ -47,7 +48,9 @@ const LoginDialog = (props) => {
     <Dialog onClose={() => setOpenLogin(false)} open={open}>
       <DialogTitle>Login</DialogTitle>
       <div className="login-dialog-container">
-        <div className="login-dialog-box" onClick={() => {setLoading(true), handleLogin()}}>Button</div>
+        <div className="login-dialog-box" onClick={() => {setLoading(true), handleLogin()}}>
+          <img className="login-dialog-google-button" src={googleLoginImg} alt="Sign in with Google" />
+        </div>
         <div className="login-dialog-footer">
           <div className="login-dialog-footer-button" onClick={() => setOpenLogin(false)}>Skip</div>
         </div>

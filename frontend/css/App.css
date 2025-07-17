@@ -71,7 +71,8 @@
     width: 300px;
 }
 .login-dialog-box{
-
+    display: flex;
+    justify-content: center;
 }
 .login-dialog-footer{
     margin: 12px 0 0 0;
@@ -103,4 +104,10 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+}
+.login-dialog-google-button {
+    width: 175px;
+    height: 40px;
+    object-fit: contain;
+    cursor: pointer;
 }
