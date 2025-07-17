@@ -18,20 +18,12 @@ redis_client = redis.Redis.from_url(REDIS_URL)
 
 # Create your views here.
 def index(request):
-    state_token = request.session.get('state', None)
-    if state_token is None:
-        # Generate a new state token and store it in the session
-        state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
-        print('state_token', state_token)
-        # Set key to expire in one day
-        success = redis_client.set("state_token", state_token, ex=86400)
-    else:
-        print('Using existing state_token:', state_token)
-
-    # Get user_info from request
-    user_info = request.GET.get('user_info', None)
-    print('user_info: ', user_info)
-    if user_info is not None:
+    # Get session_hash from cookies
+    session_hash = request.COOKIES.get('session_hash', None)
+    user_info = None
+    if session_hash:
+        user_info = redis_client.get(str(session_hash))
+    if user_info:
         user_info = json.loads(user_info)
     else:
         user_info = {}
@@ -115,27 +107,21 @@ def delete_form(request):
 
 @csrf_exempt
 def google_login(request):
-    print('')
-    print('google_login')
+    session_hash = request.COOKIES.get('session_hash', None)
+    session_hash = redis_client.get(session_hash) if session_hash else None
+    nonce = hashlib.sha256(os.urandom(1024)).hexdigest()
+    if session_hash:
+        # Redirect to the index page
+        # response = HttpResponseRedirect("https://5499122912a2.ngrok-free.app/")
+        response = HttpResponseRedirect("https://map-polygon.vercel.app/")
+        return response
+    else:
+        session_hash = hashlib.sha256(os.urandom(1024)).hexdigest()
+        redis_client.set(session_hash, json.dumps({'nonce': nonce}), ex=86400)
 
-    nonce = redis_client.get("nonce")
-    if nonce is None:
-        nonce = hashlib.sha256(os.urandom(1024)).hexdigest()
-        redis_client.set("nonce", nonce, ex=86400)
+    # redirect_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&scope=openid%20profile%20email&redirect_uri=https://5499122912a2.ngrok-free.app/redirect-login/&state={session_hash}&nonce={nonce}&access_type=offline"
+    redirect_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&scope=openid%20profile%20email&redirect_uri=https://map-polygon.vercel.app/redirect-login/&state={session_hash}&nonce={nonce}&access_type=offline"
 
-    state_token = redis_client.get("state_token")
-    if state_token is None:
-        state_token = hashlib.sha256(os.urandom(1024)).hexdigest()
-        redis_client.set("state_token", state_token, ex=86400)
-
-    user_email = redis_client.get("user_email")
-    login_hint = ''
-    if user_email:
-        login_hint = '&login_hint=' + user_email
-    # redirect_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&scope=openid%20profile%20email&redirect_uri=https://76565d5a1aef.ngrok-free.app/redirect-login/&state={state_token}&nonce={nonce}&access_type=offline" + login_hint
-    redirect_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&scope=openid%20profile%20email&redirect_uri=https://map-polygon.vercel.app/redirect-login/&state={state_token}&nonce={nonce}&access_type=offline" + login_hint
-
-    print(redirect_url)
 
     response_dict = {
         'status': 'success',
@@ -145,27 +131,20 @@ def google_login(request):
 
 @csrf_exempt
 def redirect_login(request):
-    print('')
-    print('redirect_login')
 
     code = request.GET.get('code', None)
-    print('code: ', code)
     if code is None:
         return HttpResponse("No code provided in the request.")
 
-    state = request.GET.get('state', None)
-    print('state: ', state)
+    state = str(request.GET.get('state', None))
     if state is None:
         return HttpResponse("No state token found in session.")
 
-    state_token = redis_client.get("state_token")
-    print('state_token: ', state_token)
-    if state_token is None:
-        return HttpResponse("No state_token provided in the request.")
-
-    # Compare the state token with the one in the request
-    if state != state_token:
-        return HttpResponse("State token does not match.")
+    session_hash = state
+    user_info = redis_client.get(session_hash)
+    if user_info is None:
+        return HttpResponse("No session_hash provided in the request.")
+    user_info = json.loads(user_info)
 
     response = requests.post(
         'https://oauth2.googleapis.com/token',
@@ -173,19 +152,16 @@ def redirect_login(request):
             'code': code,
             'client_id': GOOGLE_CLIENT_ID,
             'client_secret': GOOGLE_CLIENT_SECRET,
-            # 'redirect_uri': 'https://76565d5a1aef.ngrok-free.app/redirect-login/',
+            # 'redirect_uri': 'https://5499122912a2.ngrok-free.app/redirect-login/',
             'redirect_uri': 'https://map-polygon.vercel.app/redirect-login/',
             'grant_type': 'authorization_code',
         }
     )
-    print('response: ', response)
     if response.status_code != 200:
         return HttpResponse("Failed to exchange code for access token.")
     response_data = response.json()
-    print('response_data: ', response_data)
 
     access_token = response_data.get('access_token', None)
-    print('access_token: ', access_token)
     if access_token is None:
         return HttpResponse("No access token found in response.")
 
@@ -195,7 +171,6 @@ def redirect_login(request):
     token_type = response_data.get('token_type', None)
     refresh_token = response_data.get('refresh_token', None)
 
-    print('id_token: ', id_token)
     # Decode the ID token to get user information
     user_info_response = requests.get(
         'https://openidconnect.googleapis.com/v1/userinfo',
@@ -203,8 +178,6 @@ def redirect_login(request):
             'Authorization': f'Bearer {access_token}'
         }
     )
-    print('user_info_response: ', user_info_response)
-    user_info = {}
     if user_info_response.status_code == 200:
         user_info_dict = user_info_response.json()
         user_info['email'] = user_info_dict.get('email', None)
@@ -213,7 +186,10 @@ def redirect_login(request):
         user_info['given_name'] = user_info_dict.get('given_name', None)
         user_info['family_name'] = user_info_dict.get('family_name', None)
 
-    # Redirect to the index page with user_info
-    # redirect_url = f"https://76565d5a1aef.ngrok-free.app/?user_info={json.dumps(user_info)}"
-    redirect_url = f"https://map-polygon.vercel.app/?user_info={json.dumps(user_info)}"
-    return redirect(redirect_url)
+    redis_client.set(session_hash, json.dumps(user_info), ex=86400)  # 1 day expiration
+        
+    # Set session_hash cookie in the response
+    # response = HttpResponseRedirect("https://5499122912a2.ngrok-free.app/")
+    response = HttpResponseRedirect("https://map-polygon.vercel.app/")
+    response.set_cookie('session_hash', session_hash, max_age=86400, secure=True, httponly=True)  # 1 day expiration
+    return response
