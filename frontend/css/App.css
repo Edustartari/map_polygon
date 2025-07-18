@@ -111,3 +111,6 @@
     object-fit: contain;
     cursor: pointer;
 }
+.welcome-logout-button {
+    cursor: pointer;
+}

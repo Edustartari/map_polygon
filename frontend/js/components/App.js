@@ -27,21 +27,18 @@ import googleLoginImg from '../../assets/google_login.png';
 
 const LoginDialog = (props) => {
   const { setOpenLogin, open, setLoading } = props;
-  console.log('props: ', props);
 
   const handleLogin = async () => {
+    setOpenLogin(false);
+
     let response = await fetch('/google-login/')
-    console.log('response: ', response);
     
     response = await response.json();
     let redirect_url = response.redirect_url;
-    console.log('redirect_url: ', redirect_url);
     if (redirect_url) {
       // Redirect the user to the Google login page
       window.location.href = redirect_url;
     }
-    // If the response is successful, close the dialog
-    setOpenLogin(false);
   }
 
   return (
@@ -61,28 +58,18 @@ const LoginDialog = (props) => {
 
 const WelcomeDialog = (props) => {
   const { setOpenWelcomeDialog, open, setLoading } = props;
-  console.log('props: ', props);
 
-  const handleLogout = async () => {
-    // let response = await fetch('/google-login/')
-    // console.log('response: ', response);
-    
-    // response = await response.json();
-    // let redirect_url = response.redirect_url;
-    // console.log('redirect_url: ', redirect_url);
-    // if (redirect_url) {
-    //   // Redirect the user to the Google login page
-    //   window.location.href = redirect_url;
-    // }
-    // If the response is successful, close the dialog
+  const handleLogout = () => {
     setOpenWelcomeDialog(false);
+    const response = fetch('/logout/')
+    setLoading(false);
   }
 
   return (
     <Dialog onClose={() => setOpenWelcomeDialog(false)} open={open}>
       <DialogTitle>Welcome {content.user_info.given_name}!</DialogTitle>
       <div className="welcome-dialog-container">
-        <div className="welcome-dialog-box" onClick={() => {setLoading(true), handleLogout()}}>Logout</div>
+        <div className="welcome-logout-button" onClick={() => {setLoading(true), handleLogout()}}>Logout</div>
         <div className="welcome-dialog-footer">
           <div className="welcome-dialog-footer-button" onClick={() => setOpenWelcomeDialog(false)}>Close</div>
         </div>
@@ -254,15 +241,9 @@ export default function App() {
   }
 
   const setCountry = (event) => {
-    console.log('event: ', event.target.value)
     let country = countries.filter(element => element.code == event.target.value)[0];
-    console.log('country: ', country)
     setState({ ...state, country: country });
   }
-
-  console.log('')
-  console.log('data_list: ', data_list)
-  console.log('country: ', country)
 
     return (
       <div className="App">
