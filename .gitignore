@@ -7,4 +7,4 @@ db.sqlite3
 bundles/
 env/
 .vercel
-.env.development.local
+.env
