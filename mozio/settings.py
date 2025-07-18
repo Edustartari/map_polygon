@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-8kjozs=@5u8mc1ms*fofd)=l+t-&q6f#&zs4cssv0i6dx77(e3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.vercel.app']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.vercel.app', '861c9d29cfd0.ngrok-free.app']
 
 # Application definition
 
@@ -148,3 +148,9 @@ REDIS_URL = os.getenv('REDIS_URL')
 VERCEL_OIDC_TOKEN = os.getenv('VERCEL_OIDC_TOKEN')
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+
+if DEBUG:
+    BASE_URL = 'http://127.0.0.1:8000/'
+    # BASE_URL = 'https://861c9d29cfd0.ngrok-free.app/'
+else:
+    BASE_URL = 'https://map-polygon.vercel.app/'

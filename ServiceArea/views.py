@@ -112,15 +112,13 @@ def google_login(request):
     nonce = hashlib.sha256(os.urandom(1024)).hexdigest()
     if session_hash:
         # Redirect to the index page
-        # response = HttpResponseRedirect("https://861c9d29cfd0.ngrok-free.app/")
-        response = HttpResponseRedirect("https://map-polygon.vercel.app/")
+        response = HttpResponseRedirect(BASE_URL)
         return response
     else:
         session_hash = hashlib.sha256(os.urandom(1024)).hexdigest()
         redis_client.set(session_hash, json.dumps({'nonce': nonce}), ex=86400)
 
-    # redirect_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&scope=openid%20profile%20email&redirect_uri=https://861c9d29cfd0.ngrok-free.app/redirect-login/&state={session_hash}&nonce={nonce}&access_type=offline"
-    redirect_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&scope=openid%20profile%20email&redirect_uri=https://map-polygon.vercel.app/redirect-login/&state={session_hash}&nonce={nonce}&access_type=offline"
+    redirect_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&scope=openid%20profile%20email&redirect_uri={BASE_URL}redirect-login/&state={session_hash}&nonce={nonce}&access_type=offline"
 
 
     response_dict = {
@@ -152,8 +150,7 @@ def redirect_login(request):
             'code': code,
             'client_id': GOOGLE_CLIENT_ID,
             'client_secret': GOOGLE_CLIENT_SECRET,
-            # 'redirect_uri': 'https://861c9d29cfd0.ngrok-free.app/redirect-login/',
-            'redirect_uri': 'https://map-polygon.vercel.app/redirect-login/',
+            'redirect_uri': f"{BASE_URL}redirect-login/",
             'grant_type': 'authorization_code',
         }
     )
@@ -189,8 +186,7 @@ def redirect_login(request):
     redis_client.set(session_hash, json.dumps(user_info), ex=86400)  # 1 day expiration
         
     # Set session_hash cookie in the response
-    # response = HttpResponseRedirect("https://861c9d29cfd0.ngrok-free.app/")
-    response = HttpResponseRedirect("https://map-polygon.vercel.app/")
+    response = HttpResponseRedirect(BASE_URL)
     response.set_cookie('session_hash', session_hash, max_age=86400, secure=True, httponly=True)  # 1 day expiration
     return response
 
@@ -199,7 +195,8 @@ def logout(request):
     if session_hash:
         redis_client.delete(session_hash)
     
-    response = HttpResponseRedirect("https://map-polygon.vercel.app/")
-    # response = HttpResponseRedirect("https://861c9d29cfd0.ngrok-free.app/")
+    response = HttpResponseRedirect(BASE_URL)
+
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.delete_cookie('session_hash')
     return response
