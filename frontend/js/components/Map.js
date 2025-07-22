@@ -64,6 +64,7 @@ export default function Map(props) {
 
 		function deleteFilterArea(e) {
 			gc.setOptions({ bbox: null });
+			props.setPolygonBackup({});
 		}
 		
 		// Execute search to display in map as soon user picks a Country

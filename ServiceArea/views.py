@@ -13,8 +13,16 @@ import redis
 import os
 from dotenv import load_dotenv
 from mozio.settings import *
+import re
 
 redis_client = redis.Redis.from_url(REDIS_URL)
+
+def validate_email(email):
+    """
+    Validate the email format.
+    """
+    email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return re.match(email_regex, email) is not None
 
 # Create your views here.
 def index(request):
@@ -56,17 +64,38 @@ def save_form(request):
     dict_data = request.POST['dict_data']
     dict_data = json.loads(dict_data)
 
-    provider_object = Provider.objects.filter(name=dict_data['email'])
+    # Validate dict_data['email']
+    email = dict_data.get('email', '').strip()
+    if not email:
+        return JsonResponse({'status': 'error', 'message': 'Email is required.'})
+    if not validate_email(email):
+        return JsonResponse({'status': 'error', 'message': 'Invalid email format.'})
+
+    # Validate dict_data['phone']
+    phone = dict_data.get('phone', '').strip()
+    # Remove any non-numeric characters from phone
+    phone = re.sub(r'\D', '', phone)
+    if not phone:
+        return JsonResponse({'status': 'error', 'message': 'Phone number is required.'})
+    if not phone.isdigit():
+        return JsonResponse({'status': 'error', 'message': 'Phone number must contain only numbers.'})
+
+    # Validate dict_data['area_name']
+    area_name = dict_data.get('area_name', '').strip()
+    if not area_name:
+        return JsonResponse({'status': 'error', 'message': 'Area name is required.'})
+
+    provider_object = Provider.objects.filter(name=email)
     if provider_object.count() > 0:
         provider_object = provider_object[0]
         provider_object.name = dict_data['name']
-        provider_object.email = dict_data['email']
-        provider_object.phone = dict_data['phone']
+        provider_object.email = email
+        provider_object.phone = phone
     else:
         provider_object = Provider(
             name=dict_data['name'],
-            email=dict_data['email'],
-            phone=dict_data['phone'],
+            email=email,
+            phone=phone,
         )
     provider_object.save()
 
@@ -74,14 +103,14 @@ def save_form(request):
         area_object = Area.objects.filter(id=dict_data['area_id'])
         if area_object.count() > 0:
             area_object = area_object[0]
-            area_object.name = dict_data['area_name']
+            area_object.name = area_name
             area_object.geojson = json.dumps(dict_data['polygon_area'])
             area_object.save()
 
     else:
         area_object = Area(
             provider_id=provider_object.id,
-            name=dict_data['area_name'],
+            name=area_name,
             geojson=json.dumps(dict_data['polygon_area']),
         )
     area_object.save()

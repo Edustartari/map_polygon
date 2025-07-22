@@ -110,6 +110,38 @@ export default function App() {
       return 'You must select an area in the map';
     }
 
+    if (name.length > 150 || email.length > 150 || phone.length > 150 || area_name.length > 150 || country.length > 150){
+      return "Value cannot be longer than 150 characters" ;
+    }
+
+    const stripHtmlTags = (str) => {
+      return str.replace(/<\/?[^>]+(>|$)/g, "");
+    }
+
+    setState({ ...state, 
+      name: stripHtmlTags(name),
+      email: stripHtmlTags(email),
+      phone: stripHtmlTags(phone),
+      area_name: stripHtmlTags(area_name),
+    });
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return 'Invalid email format';
+    }
+
+    // phone should accept only numbers
+    const phoneRegex = /^[0-9]+$/;
+    if (!phoneRegex.test(phone)) {
+      return 'Phone number must contain only numbers';
+    }
+
+    // Validate polygonBackup
+    if (!polygonBackup || Object.keys(polygonBackup).length === 0 || !('features' in polygonBackup)) {
+      return 'You must select an area in the map';
+    }
+
     return '';
   }
 
@@ -122,11 +154,11 @@ export default function App() {
     }
 
     let dict_data = {
-      name: name,
-      email: email,
-      phone: phone,
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
       area_id: area_id,
-      area_name: area_name,
+      area_name: area_name.trim(),
       country: country,
       polygon_area: polygonBackup
     }
@@ -154,10 +186,12 @@ export default function App() {
           setDataList(new_list);
           setState({ ...state, snackbar_open: true , snackbar_message: 'Success' });
           empty_form();
+        } else {
+          setState({ ...state, snackbar_open: true , snackbar_message: data.message || 'An error has occurred, please try again.' });
         }
       },
-      error: function () {
-        setState({ ...state, snackbar_open: true , snackbar_message: 'An error has occurred, please try again.' });
+      error: function (data) {
+        setState({ ...state, snackbar_open: true , snackbar_message: data?.message || 'An error has occurred, please try again.' });
       },
       complete: function () {}
     });
@@ -186,7 +220,6 @@ export default function App() {
   }
 
   const delete_form = () => {
-
     $.ajax({
       context: this,
       url: '/delete-form/',
@@ -217,7 +250,6 @@ export default function App() {
   }
 
   const empty_form = () => {
-
     setState({ ...state,
       name: '',
       email: '',
