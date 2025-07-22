@@ -6,12 +6,6 @@ import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import Avatar from '@mui/material/Avatar';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import Backdrop from '@mui/material/Backdrop';
@@ -20,10 +14,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import countries from '../countries.json';
 import React, { useState } from 'react';
 import googleLoginImg from '../../assets/google_login.png';
-
-// Create a modal to force user to provide credentials
-// This modal will have mock data to simulate a REST API authentication flow
-// Present an option to user skip authentication
 
 const LoginDialog = (props) => {
   const { setOpenLogin, open, setLoading } = props;
