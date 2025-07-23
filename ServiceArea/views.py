@@ -42,6 +42,16 @@ def index(request):
     area_object = Area.objects.all()
     for area in area_object:
         provider = providers_dict[area.provider_id]
+        country = {
+            'code': 'BRA',
+            'name': 'Brazil'
+        }
+        try:
+            country_json = json.loads(area.data)
+            if 'country' in country_json:
+                country = country_json['country']
+        except Exception as e:
+            pass
         data_list.append({
             'provider_id': provider.id,
             'name': provider.name,
@@ -49,7 +59,8 @@ def index(request):
             'phone': provider.phone,
             'area_id': area.id,
             'area_name': area.name,
-            'polygon_area': json.loads(area.geojson)
+            'polygon_area': json.loads(area.geojson),
+            'country': country,
         })
 
     context = {
@@ -104,6 +115,7 @@ def save_form(request):
         if area_object.count() > 0:
             area_object = area_object[0]
             area_object.name = area_name
+            area_object.data = json.dumps({'country': dict_data['country']})
             area_object.geojson = json.dumps(dict_data['polygon_area'])
             area_object.save()
 
@@ -111,6 +123,7 @@ def save_form(request):
         area_object = Area(
             provider_id=provider_object.id,
             name=area_name,
+            data=json.dumps({'country': dict_data['country']}),
             geojson=json.dumps(dict_data['polygon_area']),
         )
     area_object.save()

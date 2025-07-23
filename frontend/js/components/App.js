@@ -174,6 +174,7 @@ export default function App() {
             new_list.push(dict_data);
           }
           setDataList(new_list);
+          setPolygonBackup({});
           setState({ ...state, snackbar_open: true , snackbar_message: 'Success' });
           empty_form();
         } else {
