@@ -229,7 +229,7 @@ def redirect_login(request):
         
     # Set session_hash cookie in the response
     response = HttpResponseRedirect(BASE_URL)
-    response.set_cookie('session_hash', session_hash, max_age=86400, secure=True, httponly=True)  # 1 day expiration
+    response.set_cookie('session_hash', session_hash, max_age=86400, secure=True, httponly=True, samesite='Strict')  # 1 day expiration
     return response
 
 def logout(request):
