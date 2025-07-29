@@ -19,5 +19,11 @@
 			"src": "/(.*)",
 			"dest": "mozio/wsgi.py"
 		}
+	],
+	"crons": [
+		{
+			"path": "/redis-update",
+			"schedule": "0 8 * * *"
+		}
 	]
 }

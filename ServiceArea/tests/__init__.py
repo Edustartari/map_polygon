@@ -4,7 +4,6 @@ commands:
 pytest (execute all tests)
 pytest --durations=5(execute all tests and display the 5 slowest tests in time)
 pytest directory_name (execute all tests inside a folder)
-pytest charts/tests/unit/test_views.py::test_true (execute a specific function)
 pytest ServiceArea/tests/unit/test_views.py::test_true (execute a specific function)
 
 USEFUL RESOURCES:

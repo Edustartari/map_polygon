@@ -242,3 +242,17 @@ def logout(request):
     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.delete_cookie('session_hash')
     return response
+
+def redis_update(request):
+    r = redis.Redis.from_url(REDIS_URL)
+
+    info = r.get('test')
+    if info:
+        r.delete('test')
+
+    r.set("test2", "hello 15")
+
+    response_dict = {
+        'status': 'success'
+    }
+    return JsonResponse(response_dict)

@@ -9,4 +9,5 @@ urlpatterns = [
     path("google-login/", views.google_login, name="google_login"),
     path("redirect-login/", views.redirect_login, name="redirect_login"),
     path("logout/", views.logout, name="logout"),
+    path("redis-update/", views.redis_update, name="redis_update"),
 ]
