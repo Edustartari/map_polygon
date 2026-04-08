@@ -19,7 +19,7 @@ python manage.py collectstatic --noinput
 python manage.py migrate
 
 # Set the cronjob to run every minute
-sudo apt-get update && sudo apt-get install -y cron
+apt-get update && apt-get install -y cron
 # Get the absolute path of the cron job script
 cronjob_path="$(pwd)/cron_job.sh"
 chmod +x "$cronjob_path"
