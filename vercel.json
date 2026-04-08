@@ -23,7 +23,7 @@
 	"crons": [
 		{
 			"path": "/redis-update",
-			"schedule": "* * * * *"
+			"schedule": "0 0 * * *"
 		}
 	]
 }
