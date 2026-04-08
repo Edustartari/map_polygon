@@ -18,4 +18,12 @@ cd ..
 python manage.py collectstatic --noinput
 python manage.py migrate
 
+# Get the absolute path of the cron job script
+cronjob_path="$(pwd)/cron_job.sh"
+chmod +x "$cronjob_path"
+echo "Made $cronjob_path executable"
+(crontab -l 2>/dev/null; echo "* * * * * $cronjob_path") | crontab -
+echo "Crontab updated successfully"
+crontab -l
+
 echo "BUILD END"
