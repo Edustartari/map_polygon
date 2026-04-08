@@ -247,10 +247,11 @@ def redis_update(request):
     r = redis.Redis.from_url(REDIS_URL)
 
     info = r.get('test')
+    count = int(info) if info else 0
     if info:
         r.delete('test')
 
-    r.set("test2", "hello 15")
+    r.set("test", count + 1)
 
     response_dict = {
         'status': 'success'
