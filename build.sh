@@ -18,6 +18,9 @@ cd ..
 python manage.py collectstatic --noinput
 python manage.py migrate
 
+# Echo the current OS used in the build process
+echo "Current OS: $(uname -a)"
+
 # Set the cronjob to run every minute
 apt-get update && apt-get install -y cron
 # Get the absolute path of the cron job script
