@@ -29,7 +29,9 @@ else
 fi
 
 # Set the cronjob to run every minute
-apt-get update && apt-get install -y cron
+dnf update -y && dnf install -y cronie
+# Start crond daemon in background
+crond &
 # Get the absolute path of the cron job script
 cronjob_path="$(pwd)/cron_job.sh"
 chmod +x "$cronjob_path"
