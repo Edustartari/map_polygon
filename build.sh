@@ -20,6 +20,13 @@ python manage.py migrate
 
 # Echo the current OS used in the build process
 echo "Current OS: $(uname -a)"
+# Echo the current linux distribution
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    echo "Linux Distribution: $NAME $VERSION"
+else
+    echo "Linux distribution information not found."
+fi
 
 # Set the cronjob to run every minute
 apt-get update && apt-get install -y cron
