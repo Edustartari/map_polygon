@@ -4,7 +4,7 @@ backports.zoneinfo;python_version<"3.9"
 certifi==2025.7.9
 charset-normalizer==3.4.2
 click==8.1.8
-Django==4.2.16
+Django==4.2.30
 django-cors-headers==4.4.0
 djangorestframework==3.15.2
 gunicorn==23.0.0
